@@ -37,6 +37,8 @@ def scrape_yellow_pages(searchterm, location, leadid):
     except Exception as e:
         print(f"An error occurred while scraping Yellow Pages: {e}")
 
+
+
 def find_contacts(website_url):
     # Set up Selenium WebDriver for Email Finder
     chrome_options = Options()
@@ -46,9 +48,10 @@ def find_contacts(website_url):
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
 
-    # Set up service using Chromedriver path from environment variable
-    service = Service(executable_path=os.getenv('CHROMEDRIVER_PATH'), options=chrome_options)
+    # Initialize the Service with the path to ChromeDriver
+    service = Service(executable_path=os.getenv('CHROMEDRIVER_PATH'))
 
+    # Create the WebDriver instance specifying both the service and options
     driver = webdriver.Chrome(service=service, options=chrome_options)
 
     try:
@@ -60,6 +63,10 @@ def find_contacts(website_url):
     finally:
         if driver:
             driver.quit()
+
+
+
+
 
 # The following code is for testing purposes
 if __name__ == "__main__":
