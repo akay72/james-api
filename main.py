@@ -2,10 +2,10 @@ from selenium.webdriver.chrome.service import Service
 import json
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from webdriver_manager.chrome import ChromeDriverManager
 from fake_useragent import UserAgent
 from yellowpages_scraper import scrape_yellow_pages_first_page
 from email_finder import scrape_data
+import os
 
 def format_yellow_pages_data(data):
     return [{
@@ -40,11 +40,17 @@ def scrape_yellow_pages(searchterm, location, leadid):
 def find_contacts(website_url):
     # Set up Selenium WebDriver for Email Finder
     chrome_options = Options()
-    chrome_options.add_argument("start-maximized")
+    chrome_options.binary_location = os.getenv('GOOGLE_CHROME_BIN')
     chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument(f"user-agent={UserAgent().random}")
-    chrome_options.add_experimental_option('excludeSwitches', ['enable-logging'])  # Suppress console messages
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+
+    # Set up service using Chromedriver path from environment variable
+    service = Service(executable_path=os.getenv('CHROMEDRIVER_PATH'), options=chrome_options)
+
+    driver = webdriver.Chrome(service=service, options=chrome_options)
 
     try:
         email_data = scrape_data(driver, website_url, "https://emailbydomain.com/")
