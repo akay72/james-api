@@ -23,10 +23,10 @@ def company():
         return jsonify({"error": "Missing parameters"}), 400
 
     def generate_scrape_yellow_pages():
-        yield "Starting scraping process...\n"
+        # yield "Starting scraping process...\n"
         for progress_update in scrape_yellow_pages(searchterm, location, leadid):
             yield json.dumps(progress_update) + '\n'
-        yield "Scraping process completed.\n"
+        # yield "Scraping process completed.\n"
 
     return Response(generate_scrape_yellow_pages(), mimetype='text/plain')
 
@@ -39,10 +39,10 @@ def contacts():
         return jsonify({"error": "Missing website URL"}), 400
 
     def generate_find_contacts():
-        yield "Starting contact finding process...\n"
+        # yield "Starting contact finding process...\n"
         for progress_update in find_contacts(website_url):
             yield json.dumps(progress_update) + '\n'
-        yield "Contact finding process completed.\n"
+        # yield "Contact finding process completed.\n"
 
     return Response(generate_find_contacts(), mimetype='text/plain')
 
