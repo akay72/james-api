@@ -35,7 +35,7 @@ def scrape_yellow_pages_first_page(search_terms, location, leadid):
 
     if response.status_code == 200:
         html_content = response.text
-        soup = BeautifulSoup(html_content, 'lxml')
+        soup = BeautifulSoup(html_content, "html.parser")
         time.sleep(3)
         results = soup.find_all(class_="result")
 
@@ -88,7 +88,7 @@ def scrape_yellow_pages_first_page(search_terms, location, leadid):
                     time.sleep(3)
                     if description_response.status_code == 200:
                         description_content = description_response.text
-                        description_soup = BeautifulSoup(description_content, 'lxml')
+                        description_soup = BeautifulSoup(description_content, "html.parser")
                         description_results = description_soup.find("div", id="listing-card")
                         if description_results:
                             if not title:
