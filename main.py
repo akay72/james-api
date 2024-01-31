@@ -45,7 +45,6 @@ def find_contacts(website_url):
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
-    chrome_options.add_argument(f"user-agent={UserAgent().random}")
 
     # Set up service using Chromedriver path from environment variable
     service = Service(executable_path=os.getenv('CHROMEDRIVER_PATH'), options=chrome_options)
