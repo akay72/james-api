@@ -7,12 +7,13 @@ app = Flask(__name__)
 
 # Dictionary to store ongoing tasks and their results
 ongoing_tasks = {}
+task_results = {}
 
 def scrape_yellow_pages_task(searchterm, location, leadid):
     result = []
     for progress_update in main.scrape_yellow_pages(searchterm, location, leadid):
         result.append(progress_update)
-    ongoing_tasks[searchterm] = result
+    task_results[searchterm] = result
     print(f"Scraping task {searchterm} completed.")
     print(f"Result: {result}")
 
@@ -20,7 +21,7 @@ def find_contacts_task(website_url):
     result = []
     for progress_update in main.find_contacts(website_url):
         result.append(progress_update)
-    ongoing_tasks[website_url] = result
+    task_results[website_url] = result
     print(f"Contact finding task for {website_url} completed.")
     print(f"Result: {result}")
 
@@ -72,15 +73,14 @@ def contacts():
 
 @app.route('/task_status/<task_id>', methods=['GET'])
 def task_status(task_id):
-    if task_id not in ongoing_tasks:
+    if task_id not in task_results:
         return jsonify({"error": "Task not found."}), 404
 
-    task_thread = ongoing_tasks[task_id]
-    if task_thread.is_alive():
-        return jsonify({"status": "Task in progress..."}), 200
-    else:
-        task_result = ongoing_tasks.get(task_id)
+    task_result = task_results[task_id]
+    if isinstance(task_result, list):
         return jsonify({"status": "Task completed.", "result": task_result}), 200
+    else:
+        return jsonify({"status": "Task in progress..."}), 200
 
 if __name__ == '__main__':
     app.run(debug=True)
