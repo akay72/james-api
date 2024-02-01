@@ -9,20 +9,20 @@ app = Flask(__name__)
 ongoing_tasks = {}
 task_results = {}
 
-def scrape_yellow_pages_task(searchterm, location, leadid):
+def scrape_yellow_pages_task(searchterm, location, leadid, task_id):
     result = []
     for progress_update in main.scrape_yellow_pages(searchterm, location, leadid):
         result.append(progress_update)
-    task_results[searchterm] = result
-    print(f"Scraping task {searchterm} completed.")
+    task_results[task_id] = result
+    print(f"Scraping task {task_id} completed.")
     print(f"Result: {result}")
 
-def find_contacts_task(website_url):
+def find_contacts_task(website_url, task_id):
     result = []
     for progress_update in main.find_contacts(website_url):
         result.append(progress_update)
-    task_results[website_url] = result
-    print(f"Contact finding task for {website_url} completed.")
+    task_results[task_id] = result
+    print(f"Contact finding task for {task_id} completed.")
     print(f"Result: {result}")
 
 @app.route('/company', methods=['POST'])
@@ -39,7 +39,7 @@ def company():
     task_id = str(uuid.uuid4())
 
     # Start the scraping task in a separate thread
-    scraping_thread = threading.Thread(target=scrape_yellow_pages_task, args=(searchterm, location, leadid))
+    scraping_thread = threading.Thread(target=scrape_yellow_pages_task, args=(searchterm, location, leadid, task_id))
     scraping_thread.start()
 
     # Store the task ID and associated thread in a dictionary
@@ -61,7 +61,7 @@ def contacts():
     task_id = str(uuid.uuid4())
 
     # Start the contact finding task in a separate thread
-    contacts_thread = threading.Thread(target=find_contacts_task, args=(website_url,))
+    contacts_thread = threading.Thread(target=find_contacts_task, args=(website_url, task_id))
     contacts_thread.start()
 
     # Store the task ID and associated thread in a dictionary
