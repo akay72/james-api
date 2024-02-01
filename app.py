@@ -13,12 +13,16 @@ def scrape_yellow_pages_task(searchterm, location, leadid):
     for progress_update in main.scrape_yellow_pages(searchterm, location, leadid):
         result.append(progress_update)
     ongoing_tasks[searchterm] = result
+    print(f"Scraping task {searchterm} completed.")
+    print(f"Result: {result}")
 
 def find_contacts_task(website_url):
     result = []
     for progress_update in main.find_contacts(website_url):
         result.append(progress_update)
     ongoing_tasks[website_url] = result
+    print(f"Contact finding task for {website_url} completed.")
+    print(f"Result: {result}")
 
 @app.route('/company', methods=['POST'])
 def company():
