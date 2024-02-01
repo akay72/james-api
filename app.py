@@ -33,7 +33,11 @@ def company():
     scraping_thread = threading.Thread(target=scrape_yellow_pages_task, args=(searchterm, location, leadid))
     scraping_thread.start()
 
-    return jsonify({"message": "Scraping task started."}), 202
+    # Generate a unique task ID (you can use a more robust method in production)
+    task_id = scraping_thread.name
+
+    # Return the task ID as a response
+    return jsonify({"task_id": task_id, "message": "Scraping task started."}), 202
 
 @app.route('/contacts', methods=['POST'])
 def contacts():
@@ -47,12 +51,14 @@ def contacts():
     contacts_thread = threading.Thread(target=find_contacts_task, args=(website_url,))
     contacts_thread.start()
 
-    return jsonify({"message": "Contact finding task started."}), 202
+    # Generate a unique task ID (you can use a more robust method in production)
+    task_id = contacts_thread.name
 
-@app.route('/task_status', methods=['GET'])
-def task_status():
-    task_id = request.args.get('task_id')
+    # Return the task ID as a response
+    return jsonify({"task_id": task_id, "message": "Contact finding task started."}), 202
 
+@app.route('/task_status/<task_id>', methods=['GET'])
+def task_status(task_id):
     if task_id not in ongoing_tasks:
         return jsonify({"error": "Task not found."}), 404
 
