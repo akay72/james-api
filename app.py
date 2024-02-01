@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 import threading
 import main  # Import your scraping script
+import uuid
 
 app = Flask(__name__)
 
@@ -29,12 +30,15 @@ def company():
     if not all([searchterm, location, leadid]):
         return jsonify({"error": "Missing parameters"}), 400
 
+    # Generate a unique task ID
+    task_id = str(uuid.uuid4())
+
     # Start the scraping task in a separate thread
     scraping_thread = threading.Thread(target=scrape_yellow_pages_task, args=(searchterm, location, leadid))
     scraping_thread.start()
 
-    # Generate a unique task ID (you can use a more robust method in production)
-    task_id = scraping_thread.name
+    # Store the task ID and associated thread in a dictionary
+    ongoing_tasks[task_id] = scraping_thread
 
     # Return the task ID as a response
     return jsonify({"task_id": task_id, "message": "Scraping task started."}), 202
@@ -47,12 +51,15 @@ def contacts():
     if not website_url:
         return jsonify({"error": "Missing website URL"}), 400
 
+    # Generate a unique task ID
+    task_id = str(uuid.uuid4())
+
     # Start the contact finding task in a separate thread
     contacts_thread = threading.Thread(target=find_contacts_task, args=(website_url,))
     contacts_thread.start()
 
-    # Generate a unique task ID (you can use a more robust method in production)
-    task_id = contacts_thread.name
+    # Store the task ID and associated thread in a dictionary
+    ongoing_tasks[task_id] = contacts_thread
 
     # Return the task ID as a response
     return jsonify({"task_id": task_id, "message": "Contact finding task started."}), 202
@@ -62,10 +69,11 @@ def task_status(task_id):
     if task_id not in ongoing_tasks:
         return jsonify({"error": "Task not found."}), 404
 
-    task_result = ongoing_tasks.get(task_id)
-    if task_result is None:
+    task_thread = ongoing_tasks[task_id]
+    if task_thread.is_alive():
         return jsonify({"status": "Task in progress..."}), 200
     else:
+        task_result = ongoing_tasks.get(task_id)
         return jsonify({"status": "Task completed.", "result": task_result}), 200
 
 if __name__ == '__main__':
