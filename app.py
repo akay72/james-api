@@ -43,6 +43,7 @@ def company():
 
     # Store the task ID and associated thread in a dictionary
     ongoing_tasks[task_id] = scraping_thread
+    print(f"Started scraping task with ID: {task_id}")
 
     # Return the task ID as a response
     return jsonify({"task_id": task_id, "message": "Scraping task started."}), 202
@@ -64,6 +65,7 @@ def contacts():
 
     # Store the task ID and associated thread in a dictionary
     ongoing_tasks[task_id] = contacts_thread
+    print(f"Started contact finding task with ID: {task_id}")
 
     # Return the task ID as a response
     return jsonify({"task_id": task_id, "message": "Contact finding task started."}), 202
