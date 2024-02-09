@@ -33,7 +33,7 @@ def company():
     leadid = data.get('leadid')
 
     if not all([searchterm, location, leadid]):
-        return jsonify({"error": "Missing parameters"}), 400
+        return jsonify({"error": "Missing parameters"}), 200
 
     # Generate a unique task ID
     task_id = str(uuid.uuid4())
@@ -47,7 +47,7 @@ def company():
     print(f"Started scraping task with ID: {task_id}")
 
     # Return the task ID as a response
-    return jsonify({"task_id": task_id, "message": "Scraping task started."}), 202
+    return jsonify({"task_id": task_id, "message": "Scraping task started."}), 200
 
 @app.route('/contacts', methods=['POST'])
 def contacts():
@@ -55,7 +55,7 @@ def contacts():
     website_url = data.get('website')
 
     if not website_url:
-        return jsonify({"error": "Missing website URL"}), 400
+        return jsonify({"error": "Missing website URL"}), 200
 
     # Generate a unique task ID
     task_id = str(uuid.uuid4())
@@ -69,7 +69,7 @@ def contacts():
     print(f"Started contact finding task with ID: {task_id}")
 
     # Return the task ID as a response
-    return jsonify({"task_id": task_id, "message": "Contact finding task started."}), 202
+    return jsonify({"task_id": task_id, "message": "Contact finding task started."}), 200
 
 @app.route('/task_status/<task_id>', methods=['GET'])
 def task_status(task_id):
