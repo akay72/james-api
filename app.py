@@ -1,35 +1,46 @@
 from flask import Flask, request, jsonify
 import threading
-import main  # Assuming main.py contains your scraping functions
+import main  # This should be replaced with the actual import of your scraping functions
 import uuid
+from threading import Lock
 
 app = Flask(__name__)
 
-# Dictionary to store ongoing tasks and their results
+# Shared resources
 ongoing_tasks = {}
 task_results = {}
+task_lock = Lock()  # Lock for thread-safe operations on shared resources
+
+def task_wrapper(task_func, *args, **kwargs):
+    task_id = kwargs.pop('task_id')
+    try:
+        # Execute the provided task function
+        task_func(*args, **kwargs)
+    except Exception as e:
+        # In case of an exception, store the error message
+        task_results[task_id] = {'error': str(e)}
+    finally:
+        # Ensure the task is marked as completed in any case
+        with task_lock:
+            ongoing_tasks.pop(task_id, None)
+            if task_id not in task_results:  # Check if not stored by task_func
+                task_results[task_id] = {'error': 'Task failed without an error message.'}
 
 def scrape_yellow_pages_task(searchterm, location, leadid, task_id):
     result = []
-    # Simulate scraping task with updates
+    # Your scraping logic here
     for progress_update in main.scrape_yellow_pages(searchterm, location, leadid):
         result.append(progress_update)
     task_results[task_id] = result
-    # Once completed, remove from ongoing tasks
-    ongoing_tasks.pop(task_id, None)
     print(f"Scraping task {task_id} completed.")
-    print(f"Result: {result}")
 
 def find_contacts_task(website_url, task_id):
     result = []
-    # Simulate contact finding task with updates
+    # Your contact finding logic here
     for progress_update in main.find_contacts(website_url):
         result.append(progress_update)
     task_results[task_id] = result
-    # Once completed, remove from ongoing tasks
-    ongoing_tasks.pop(task_id, None)
     print(f"Contact finding task for {task_id} completed.")
-    print(f"Result: {result}")
 
 @app.route('/company', methods=['POST'])
 def company():
@@ -42,10 +53,9 @@ def company():
         return jsonify({"error": "Missing parameters"}), 200
 
     task_id = str(uuid.uuid4())
-    scraping_thread = threading.Thread(target=scrape_yellow_pages_task, args=(searchterm, location, leadid, task_id))
-    scraping_thread.start()
-    ongoing_tasks[task_id] = "processing"
-    print(f"Started scraping task with ID: {task_id}")
+    with task_lock:
+        ongoing_tasks[task_id] = "processing"
+    threading.Thread(target=task_wrapper, args=(scrape_yellow_pages_task,), kwargs={'searchterm': searchterm, 'location': location, 'leadid': leadid, 'task_id': task_id}).start()
 
     return jsonify({"task_id": task_id, "message": "Scraping task started."}), 200
 
@@ -58,22 +68,23 @@ def contacts():
         return jsonify({"error": "Missing website URL"}), 200
 
     task_id = str(uuid.uuid4())
-    contacts_thread = threading.Thread(target=find_contacts_task, args=(website_url, task_id))
-    contacts_thread.start()
-    ongoing_tasks[task_id] = "processing"
-    print(f"Started contact finding task with ID: {task_id}")
+    with task_lock:
+        ongoing_tasks[task_id] = "processing"
+    threading.Thread(target=task_wrapper, args=(find_contacts_task,), kwargs={'website_url': website_url, 'task_id': task_id}).start()
 
     return jsonify({"task_id": task_id, "message": "Contact finding task started."}), 200
 
 @app.route('/task_status/<task_id>', methods=['GET'])
 def task_status(task_id):
-    if task_id in task_results:
-        task_result = task_results[task_id]
-        return jsonify({"status": "complete", "result": task_result}), 200
-    elif task_id in ongoing_tasks:
-        return jsonify({"status": "processing"}), 200
-    else:
-        return jsonify({"error": "Task not found."}), 200
+    with task_lock:
+        if task_id in task_results:
+            # Remove the result to prevent repeated fetches
+            task_result = task_results.pop(task_id)
+            return jsonify({"status": "complete", "result": task_result}), 200
+        elif task_id in ongoing_tasks:
+            return jsonify({"status": "processing"}), 200
+        else:
+            return jsonify({"error": "Task not found."}), 200
 
 if __name__ == '__main__':
     app.run(debug=True)
