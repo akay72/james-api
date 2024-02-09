@@ -74,7 +74,7 @@ def contacts():
 @app.route('/task_status/<task_id>', methods=['GET'])
 def task_status(task_id):
     if task_id not in task_results:
-        return jsonify({"error": "Task not found."}), 404
+        return jsonify({"error": "Task not found."}), 200
 
     task_result = task_results[task_id]
     if isinstance(task_result, list):
