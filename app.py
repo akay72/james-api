@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 import threading
 import main  # Import your scraping script
 import uuid
+from email_content import generate_outreach_email
 
 app = Flask(__name__)
 
@@ -24,6 +25,23 @@ def find_contacts_task(website_url, task_id):
     task_results[task_id] = result
     print(f"Contact finding task for {task_id} completed.")
     print(f"Result: {result}")
+
+
+@app.route('/generate_email', methods=['POST'])
+def generate_email():
+    data = request.json
+    lead_name = data.get('lead_name')
+    lead_website = data.get('lead_website')
+
+    if not lead_name or not lead_website:
+        return jsonify({"error": "Missing lead_name or lead_website parameters"}), 200
+
+    try:
+        # Generate the email content directly without using a separate thread
+        email_content = generate_outreach_email(lead_name, lead_website)
+        return jsonify({"email_content": email_content, "message": "Email generation task completed."}), 200
+    except Exception as e:
+        return jsonify({"error": f"An error occurred during email generation: {str(e)}"}), 200
 
 @app.route('/company', methods=['POST'])
 def company():
