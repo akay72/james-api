@@ -3,9 +3,11 @@ import threading
 import main  # Import your scraping script
 import uuid
 from email_content import generate_outreach_email
+from flask_cors import CORS
 
 app = Flask(__name__)
 
+CORS(app)
 # Dictionary to store ongoing tasks and their results
 ongoing_tasks = {}
 task_results = {}
