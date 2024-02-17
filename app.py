@@ -4,6 +4,7 @@ import main  # Import your scraping script
 import uuid
 from email_content import generate_outreach_email
 from flask_cors import CORS
+from collections.abc import Iterable
 
 app = Flask(__name__)
 
