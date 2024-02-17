@@ -10,3 +10,4 @@ Werkzeug==2.0.1
 fuzzywuzzy==0.18.0
 python-Levenshtein==0.12.2
 openai==0.28.0
+Flask-Cors==1.10.3
