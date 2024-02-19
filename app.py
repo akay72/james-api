@@ -9,7 +9,7 @@ collections.Iterable = collections.abc.Iterable
 
 app = Flask(__name__)
 
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}})
 # Dictionary to store ongoing tasks and their results
 ongoing_tasks = {}
 task_results = {}
@@ -43,7 +43,7 @@ def generate_email():
     try:
         # Generate the email content directly without using a separate thread
         email_content = generate_outreach_email(lead_name, lead_website)
-        return jsonify({"email_content": email_content, "message": "Email generation task completed."}), 200
+        return jsonify({"email_content": email_content, "status": "Task completed."}), 200
     except Exception as e:
         return jsonify({"error": f"An error occurred during email generation: {str(e)}"}), 200
 
