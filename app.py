@@ -10,7 +10,12 @@ collections.Iterable = collections.abc.Iterable
 app = Flask(__name__)
 
 # CORS(app, resources={r"/*": {"origins": "*"}})
-CORS(app, resources={r"/*": {"origins": "*", "allow_headers": ["Content-Type", "Authorization", "X-Requested-With"]}})
+# CORS(app, resources={r"/*": {"origins": "*", "allow_headers": ["Content-Type", "Authorization", "X-Requested-With"]}})
+CORS(app, resources={r"/*": {
+    "origins": "*",
+    "allow_headers": ["Content-Type", "Authorization", "X-Requested-With"],
+    "methods": ["GET", "POST", "PUT", "DELETE"]
+}})
 # Dictionary to store ongoing tasks and their results
 ongoing_tasks = {}
 task_results = {}
