@@ -24,7 +24,7 @@ def scrape_yellow_pages_first_page(search_terms, location, leadid):
     encoded_location = urllib.parse.quote_plus(location)
 
     base_url = f"https://www.yellowpages.com/search?search_terms={encoded_search_terms}&geo_location_terms={encoded_location}&page={page}"
-
+    print(base_url)
     random_delay()
 
     response = session.get(base_url)
