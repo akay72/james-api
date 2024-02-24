@@ -30,15 +30,20 @@ def scrape_yellow_pages_task(searchterm, location, leadid, task_id):
         task_results[task_id] = {'status': 'error', 'message': str(e)}
     finally:
         print(f"Task {task_id} completed with status {task_results[task_id]['status']}.")
+        print(f"Result: {result}")
 
 
 def find_contacts_task(website_url, task_id):
-    result = []
-    for progress_update in main.find_contacts(website_url):
-        result.append(progress_update)
-    task_results[task_id] = result
-    print(f"Contact finding task for {task_id} completed.")
-    print(f"Result: {result}")
+    try:
+        result = []
+        for progress_update in main.find_contacts(website_url):
+            result.append(progress_update)
+        task_results[task_id] = {'status': 'success', 'result': result}
+    except Exception as e:
+        task_results[task_id] = {'status': 'error', 'message': str(e)}
+    finally:
+        print(f"Task {task_id} completed with status {task_results[task_id]['status']}.")    
+        print(f"Result: {result}")
 
 
 @app.route('/generate_email', methods=['POST'])
