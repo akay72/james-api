@@ -21,12 +21,16 @@ ongoing_tasks = {}
 task_results = {}
 
 def scrape_yellow_pages_task(searchterm, location, leadid, task_id):
-    result = []
-    for progress_update in main.scrape_yellow_pages(searchterm, location, leadid):
-        result.append(progress_update)
-    task_results[task_id] = result
-    print(f"Scraping task {task_id} completed.")
-    print(f"Result: {result}")
+    try:
+        result = []
+        for progress_update in main.scrape_yellow_pages(searchterm, location, leadid):
+            result.append(progress_update)
+        task_results[task_id] = {'status': 'success', 'result': result}
+    except Exception as e:
+        task_results[task_id] = {'status': 'error', 'message': str(e)}
+    finally:
+        print(f"Task {task_id} completed with status {task_results[task_id]['status']}.")
+
 
 def find_contacts_task(website_url, task_id):
     result = []
@@ -104,11 +108,14 @@ def task_status(task_id):
     if task_id not in task_results:
         return jsonify({"error": "Task not found."}), 200
 
-    task_result = task_results[task_id]
-    if isinstance(task_result, list):
-        return jsonify({"status": "Task completed.", "result": task_result}), 200
+    task_info = task_results[task_id]
+    if task_info['status'] == 'success':
+        return jsonify({"status": "Task completed.", "result": task_info['result']}), 200
+    elif task_info['status'] == 'error':
+        return jsonify({"status": "Task failed.", "message": task_info['message']}), 200
     else:
         return jsonify({"status": "Task in progress..."}), 200
+
 
 if __name__ == '__main__':
     app.run(debug=True)
