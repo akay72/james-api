@@ -1,4 +1,5 @@
 import openai
+from openai import OpenAI
 import os
 # Load configuration from the JSON file
 # def generate_outreach_email(lead_name, lead_website):
@@ -20,7 +21,8 @@ import os
 #     return response.choices[0].message['content']
 
 def generate_outreach_email(lead_name, lead_website):
-    openai.api_key = os.getenv('OPENAI_API_KEY')
+    openai_api_key = os.getenv('OPENAI_API_KEY')
+    client = OpenAI(api_key=openai_api_key)
     prompt = f"""Lead information: ["{lead_name}","{lead_website}"]
 Product/service details: "National Utilisource is one of the leading North American providers of top-rated energy supply to consumers looking for large-scale energy consumption. Based on this information, create an email with the subject clearly labeled as 'Subject:' and the body of the email labeled as 'Body:'. The email should be tailored to the lead, highlighting the benefits of National Utilisource's services."""
 
